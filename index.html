@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Type</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-novatype">
+
+    <div class="wrapper">
+        <!-- Main Test Workspace -->
+        <div id="test-screen">
+            <div class="customizer-ribbon">
+                <div class="option-group" id="time-opts">
+                    <span>time:</span>
+                    <div class="opt-item active" onclick="changeTime(15)">15</div>
+                    <div class="opt-item" onclick="changeTime(30)">30</div>
+                    <div class="opt-item" onclick="changeTime(60)">60</div>
+                    <div class="opt-item" onclick="changeTime(120)">120</div>
+                </div>
+                
+                <div class="option-group" id="theme-opts">
+                    <span>theme:</span>
+                    <div class="opt-item active" onclick="setTheme('novatype')">nova</div>
+                    <div class="opt-item" onclick="setTheme('carbon')">carbon</div>
+                    <div class="opt-item" onclick="setTheme('laser')">laser</div>
+                    <div class="opt-item" onclick="setTheme('nord')">nord</div>
+                </div>
+
+                <div class="option-group">
+                    <span>live stats:</span>
+                    <div id="hud-toggle" class="opt-item active" onclick="toggleHud()">visible</div>
+                </div>
+            </div>
+
+            <!-- Live Performance HUD Layer -->
+            <div class="live-panel">
+                <div id="timer-display" class="live-timer">15</div>
+                <div id="live-hud" class="live-metrics-hud">
+                    <div>wpm: <span id="live-wpm">0</span></div>
+                    <div>acc: <span id="live-acc">100%</span></div>
+                </div>
+            </div>
+
+            <!-- Interactive Typing Field Area -->
+            <div class="words-container" id="game-click-zone">
+                <input type="text" id="hidden-input" autocomplete="off">
+                <div id="caret" class="blink"></div>
+                <div id="words-wrapper" class="words-wrapper"></div>
+            </div>
+        </div>
+
+        <!-- Analytical Summary Score Screen -->
+        <div id="result-screen" class="result-screen">
+            <div class="stats-display">
+                <div class="stat-group">
+                    <div class="label">wpm</div>
+                    <div class="value" id="res-wpm">0</div>
+                </div>
+                <div class="stat-group">
+                    <div class="label">accuracy</div>
+                    <div class="value" id="res-acc">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer / Shortcuts Controls -->
+        <div class="restart-hint" id="restart-action">
+            Press <kbd>Esc</kbd> or click the text workspace to focus/restart
+        </div>
+    </div>
+
+    <!-- Core App Imports -->
+    <script src="words.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
