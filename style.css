@@ -296,12 +296,53 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .history-header h3 {
     font-size: 1.1rem;
     color: #5c5d6b;
+    font-weight: 700;
+}
+
+/* Lifetime Averages Cards */
+.history-summary {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    flex: 1;
+    background-color: var(--bg-color);
+    padding: 1.2rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.summary-card .card-title {
+    color: #5c5d6b;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+    text-transform: lowercase;
+}
+
+.summary-card .card-stats {
+    display: flex;
+    gap: 2rem;
+    align-items: baseline;
+}
+
+.summary-card .stat-num {
+    color: var(--main-color);
+    font-size: 2.2rem;
+    font-weight: bold;
+}
+
+.summary-card .stat-lbl {
+    color: var(--sub-color);
+    font-size: 0.9rem;
     font-weight: 700;
 }
 
