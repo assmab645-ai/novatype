@@ -91,12 +91,54 @@ const wordsWrapper = document.getElementById('words-wrapper');
 const caret = document.getElementById('caret');
 const timerDisplay = document.getElementById('timer-display');
 const liveHud = document.getElementById('live-hud');
-const testScreen = document.getElementById('test-screen');
 const resultScreen = document.getElementById('result-screen');
 const restartAction = document.getElementById('restart-action');
 const historyList = document.getElementById('history-list');
 const syncStatus = document.getElementById('sync-status');
 const statusText = document.getElementById('status-text');
+
+// View Containers
+const testView = document.getElementById('test-view');
+const historyView = document.getElementById('history-view');
+const navTestBtn = document.getElementById('nav-test-btn');
+const navHistoryBtn = document.getElementById('nav-history-btn');
+
+/**
+ * Screen / Tab View Switcher
+ */
+function switchTab(tabName) {
+    if (tabName === 'test') {
+        if (testView) {
+            testView.classList.remove('hidden');
+            testView.classList.add('active');
+        }
+        if (historyView) {
+            historyView.classList.add('hidden');
+            historyView.classList.remove('active');
+        }
+
+        if (navTestBtn) navTestBtn.classList.add('active');
+        if (navHistoryBtn) navHistoryBtn.classList.remove('active');
+
+        if (hiddenInput && !testOver) {
+            hiddenInput.focus();
+        }
+    } else if (tabName === 'history') {
+        if (historyView) {
+            historyView.classList.remove('hidden');
+            historyView.classList.add('active');
+        }
+        if (testView) {
+            testView.classList.add('hidden');
+            testView.classList.remove('active');
+        }
+
+        if (navHistoryBtn) navHistoryBtn.classList.add('active');
+        if (navTestBtn) navTestBtn.classList.remove('active');
+
+        renderHistory();
+    }
+}
 
 // Helper: Generator for Data Entry Numbers Mode
 function generateRandomNumberString() {
@@ -132,7 +174,7 @@ function generateWords() {
     
     setTimeout(() => {
         updateCaretPosition(); 
-        hiddenInput.focus();
+        if (hiddenInput) hiddenInput.focus();
     }, 50);
 }
 
@@ -201,7 +243,8 @@ function endTest() {
     testActive = false;
     testOver = true;
     
-    testScreen.style.display = 'none';
+    // Hide game zone and show score cards
+    document.getElementById('game-click-zone').style.display = 'none';
     resultScreen.style.display = 'block';
     caret.style.display = 'none';
 
@@ -227,11 +270,11 @@ function resetTest() {
     typedCharactersCount = 0;
     errorCharactersCount = 0;
 
-    testScreen.style.display = 'block';
+    document.getElementById('game-click-zone').style.display = 'block';
     resultScreen.style.display = 'none';
     caret.style.display = 'block';
     
-    hiddenInput.value = '';
+    if (hiddenInput) hiddenInput.value = '';
     generateWords();
 }
 
@@ -296,7 +339,8 @@ function renderHistory() {
         return;
     }
 
-    history.slice(0, 10).forEach(item => {
+    // Displays all items without capping now that it's in its own scrollable screen
+    history.forEach(item => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${item.mode}</td>
@@ -309,6 +353,7 @@ function renderHistory() {
 }
 
 function updateNetworkStatus() {
+    if (!syncStatus || !statusText) return;
     if (navigator.onLine) {
         syncStatus.className = 'sync-status online';
         statusText.innerText = 'online';
@@ -323,12 +368,13 @@ window.addEventListener('offline', updateNetworkStatus);
 
 // Input & Event Listeners
 window.addEventListener('keydown', (e) => {
-    if (testOver) return;
-
+    // Quick Reset on Escape key anywhere during or after test
     if (e.key === 'Escape') {
         resetTest();
         return;
     }
+
+    if (testOver) return;
 
     const currentWord = wordElements[currentWordIndex];
     if (!currentWord) return;
@@ -410,16 +456,25 @@ hiddenInput.addEventListener('input', (e) => {
     updateCaretPosition();
 });
 
-document.addEventListener('click', () => {
-    if (testOver) return;
+document.addEventListener('click', (e) => {
+    // Don't override click if user clicks on navigation buttons or history
+    if (e.target.closest('.top-nav') || e.target.closest('#history-view')) return;
+
+    if (testOver) {
+        resetTest();
+        return;
+    }
+    
     initAudio(); 
-    hiddenInput.focus();
+    if (hiddenInput) hiddenInput.focus();
 });
 
-restartAction.addEventListener('click', (e) => {
-    e.stopPropagation();
-    resetTest();
-});
+if (restartAction) {
+    restartAction.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetTest();
+    });
+}
 
 // Initial Setup
 updateNetworkStatus();
