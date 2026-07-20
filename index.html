@@ -16,8 +16,17 @@
 <body class="theme-novatype">
 
     <div class="wrapper">
-        <!-- Main Test Workspace -->
-        <div id="test-screen">
+        <!-- Top Navigation Bar (Monkeytype Style) -->
+        <nav class="top-nav">
+            <div class="nav-brand">nova type</div>
+            <div class="nav-links">
+                <button id="nav-test-btn" class="nav-btn active" onclick="switchTab('test')">test</button>
+                <button id="nav-history-btn" class="nav-btn" onclick="switchTab('history')">history</button>
+            </div>
+        </nav>
+
+        <!-- Main Test Workspace View -->
+        <div id="test-view" class="view-screen active">
             <div class="customizer-ribbon">
                 <div class="option-group" id="mode-opts">
                     <span>mode:</span>
@@ -62,51 +71,53 @@
                 <div id="caret" class="blink"></div>
                 <div id="words-wrapper" class="words-wrapper"></div>
             </div>
-        </div>
 
-        <!-- Analytical Summary Score Screen -->
-        <div id="result-screen" class="result-screen">
-            <div class="stats-display">
-                <div class="stat-group">
-                    <div class="label">wpm</div>
-                    <div class="value" id="res-wpm">0</div>
+            <!-- Analytical Summary Score Screen -->
+            <div id="result-screen" class="result-screen">
+                <div class="stats-display">
+                    <div class="stat-group">
+                        <div class="label">wpm</div>
+                        <div class="value" id="res-wpm">0</div>
+                    </div>
+                    <div class="stat-group">
+                        <div class="label">accuracy</div>
+                        <div class="value" id="res-acc">0%</div>
+                    </div>
                 </div>
-                <div class="stat-group">
-                    <div class="label">accuracy</div>
-                    <div class="value" id="res-acc">0%</div>
-                </div>
+            </div>
+
+            <!-- Footer / Shortcuts Controls -->
+            <div class="restart-hint" id="restart-action">
+                Press <kbd>Esc</kbd> or click the text workspace to focus/restart
             </div>
         </div>
 
-        <!-- Typing History & Network Status Panel -->
-        <div id="history-section" class="history-section">
-            <div class="history-header">
-                <h3>typing history</h3>
-                <div id="sync-status" class="sync-status online">
-                    <span class="status-dot"></span>
-                    <span id="status-text">online</span>
+        <!-- Dedicated History Screen View -->
+        <div id="history-view" class="view-screen hidden">
+            <div class="history-section">
+                <div class="history-header">
+                    <h3>typing history</h3>
+                    <div id="sync-status" class="sync-status online">
+                        <span class="status-dot"></span>
+                        <span id="status-text">online</span>
+                    </div>
+                </div>
+                <div class="history-table-wrapper">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>mode</th>
+                                <th>wpm</th>
+                                <th>accuracy</th>
+                                <th>date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-list">
+                            <!-- History rows will be populated dynamically -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="history-table-wrapper">
-                <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th>mode</th>
-                            <th>wpm</th>
-                            <th>accuracy</th>
-                            <th>date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-list">
-                        <!-- History rows will be populated dynamically -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Footer / Shortcuts Controls -->
-        <div class="restart-hint" id="restart-action">
-            Press <kbd>Esc</kbd> or click the text workspace to focus/restart
         </div>
     </div>
 
