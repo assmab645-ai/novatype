@@ -48,11 +48,12 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: 'Roboto Mono', monospace;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -61,6 +62,7 @@ body {
     max-width: 1400px; 
     padding: 2rem;
     position: relative;
+    margin: auto;
 }
 
 .customizer-ribbon {
@@ -234,11 +236,97 @@ body {
     font-weight: bold;
 }
 
+/* --- Typing History & Connection Status Panel --- */
+.history-section {
+    margin-top: 3rem;
+    background-color: var(--sub-alt-color);
+    padding: 1.5rem;
+    border-radius: 10px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.history-header h3 {
+    font-size: 1.1rem;
+    color: #5c5d6b;
+    font-weight: 700;
+}
+
+.sync-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: lowercase;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.sync-status.online .status-dot {
+    background-color: #2ec4b6;
+    box-shadow: 0 0 6px #2ec4b6;
+}
+
+.sync-status.online {
+    color: #2ec4b6;
+}
+
+.sync-status.offline .status-dot {
+    background-color: var(--error-color);
+    box-shadow: 0 0 6px var(--error-color);
+}
+
+.sync-status.offline {
+    color: var(--error-color);
+}
+
+.history-table-wrapper {
+    overflow-x: auto;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.history-table th, .history-table td {
+    padding: 10px 14px;
+}
+
+.history-table th {
+    color: #5c5d6b;
+    border-bottom: 2px solid var(--bg-color);
+    font-weight: 700;
+}
+
+.history-table td {
+    color: var(--sub-color);
+    border-bottom: 1px solid var(--bg-color);
+}
+
+.history-table tbody tr:hover td {
+    color: var(--text-color);
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Footer / Shortcuts Controls */
 .restart-hint {
     text-align: center;
     color: #5c5d6b;
     font-size: 1rem;
-    margin-top: 4rem;
+    margin-top: 3rem;
     cursor: pointer;
     font-weight: 700;
 }
