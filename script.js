@@ -6,6 +6,7 @@ let timerInterval = null;
 let testActive = false;
 let testOver = false;
 let showHud = true;
+let currentMode = 'words'; // Options: 'words', 'numbers'
 
 let wordElements = [];
 let currentWordIndex = 0;
@@ -14,6 +15,7 @@ let typedCharactersCount = 0;
 let errorCharactersCount = 0;
 let audioCtx = null;
 
+// Audio engine setup
 function initAudio() {
     try {
         if (!audioCtx) {
@@ -83,6 +85,7 @@ function playErrorSound() {
     errorOsc.stop(now + 0.06);
 }
 
+// DOM Elements
 const hiddenInput = document.getElementById('hidden-input');
 const wordsWrapper = document.getElementById('words-wrapper');
 const caret = document.getElementById('caret');
@@ -91,6 +94,15 @@ const liveHud = document.getElementById('live-hud');
 const testScreen = document.getElementById('test-screen');
 const resultScreen = document.getElementById('result-screen');
 const restartAction = document.getElementById('restart-action');
+const historyList = document.getElementById('history-list');
+const syncStatus = document.getElementById('sync-status');
+const statusText = document.getElementById('status-text');
+
+// Helper: Generator for Data Entry Numbers Mode
+function generateRandomNumberString() {
+    const length = Math.floor(Math.random() * 5) + 1; // Generates 1 to 5 digit numbers
+    return Math.floor(Math.random() * Math.pow(10, length)).toString();
+}
 
 function generateWords() {
     wordsWrapper.innerHTML = '';
@@ -98,7 +110,13 @@ function generateWords() {
     wordElements = [];
     
     for (let i = 0; i < 300; i++) {
-        const randomWord = wordsPool[Math.floor(Math.random() * wordsPool.length)];
+        let randomWord = '';
+        if (currentMode === 'numbers') {
+            randomWord = generateRandomNumberString();
+        } else {
+            randomWord = wordsPool[Math.floor(Math.random() * wordsPool.length)];
+        }
+
         const wordDiv = document.createElement('div');
         wordDiv.className = 'word';
         
@@ -139,12 +157,10 @@ function updateCaretPosition() {
         }
     }
 
-    // MONKEYTYPE LINE LOCK ENGINE: Row 1 = 0px, Row 2 = 48px. 
-    // If text drops to Row 3 (96px+), we scroll the screen up to keep the word on row 2.
     if (targetTop >= 96) {
         const scrollAmount = targetTop - 48;
         wordsWrapper.style.top = `-${scrollAmount}px`;
-        caret.style.top = `54px`; // Static Row 2 baseline offset anchor
+        caret.style.top = `54px`;
     } else {
         wordsWrapper.style.top = "0px";
         caret.style.top = `${targetTop + 6}px`;
@@ -192,6 +208,9 @@ function endTest() {
     const finalMetrics = calculateMetrics();
     document.getElementById('res-wpm').innerText = finalMetrics.wpm;
     document.getElementById('res-acc').innerText = `${finalMetrics.acc}%`;
+
+    // Save and sync score logic
+    saveResult(finalMetrics.wpm, finalMetrics.acc);
 }
 
 function resetTest() {
@@ -214,6 +233,14 @@ function resetTest() {
     
     hiddenInput.value = '';
     generateWords();
+}
+
+function setMode(mode) {
+    if (testActive) return;
+    currentMode = mode;
+    document.getElementById('mode-words').classList.toggle('active', mode === 'words');
+    document.getElementById('mode-numbers').classList.toggle('active', mode === 'numbers');
+    resetTest();
 }
 
 function changeTime(seconds) {
@@ -242,7 +269,59 @@ function toggleHud() {
     if(testActive && showHud) liveHud.classList.add('visible');
 }
 
-// BACKSPACE INTERCEPTION KEYDOWN TRACKER
+// Local Storage & Online Sync Engine
+function saveResult(wpm, accuracy) {
+    const newEntry = {
+        id: Date.now(),
+        mode: currentMode,
+        wpm: wpm,
+        accuracy: accuracy,
+        date: new Date().toLocaleDateString()
+    };
+
+    const history = JSON.parse(localStorage.getItem('novaTypeHistory') || '[]');
+    history.unshift(newEntry);
+    localStorage.setItem('novaTypeHistory', JSON.stringify(history));
+
+    renderHistory();
+}
+
+function renderHistory() {
+    if (!historyList) return;
+    const history = JSON.parse(localStorage.getItem('novaTypeHistory') || '[]');
+    historyList.innerHTML = '';
+
+    if (history.length === 0) {
+        historyList.innerHTML = `<tr><td colspan="4" style="text-align:center; opacity:0.5;">No history recorded yet</td></tr>`;
+        return;
+    }
+
+    history.slice(0, 10).forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.mode}</td>
+            <td>${item.wpm}</td>
+            <td>${item.accuracy}%</td>
+            <td>${item.date}</td>
+        `;
+        historyList.appendChild(tr);
+    });
+}
+
+function updateNetworkStatus() {
+    if (navigator.onLine) {
+        syncStatus.className = 'sync-status online';
+        statusText.innerText = 'online';
+    } else {
+        syncStatus.className = 'sync-status offline';
+        statusText.innerText = 'offline';
+    }
+}
+
+window.addEventListener('online', updateNetworkStatus);
+window.addEventListener('offline', updateNetworkStatus);
+
+// Input & Event Listeners
 window.addEventListener('keydown', (e) => {
     if (testOver) return;
 
@@ -255,18 +334,15 @@ window.addEventListener('keydown', (e) => {
     if (!currentWord) return;
     const letters = currentWord.querySelectorAll('.letter');
 
-    // Runs backspace character cleanup safely
     if (e.key === 'Backspace') {
         if (currentLetterIndex > 0) {
             currentLetterIndex--;
             const letterToReset = letters[currentLetterIndex];
             
             if (letterToReset) {
-                // If it's an extra character added past word limit, delete it from HTML DOM
                 if (letterToReset.classList.contains('extra')) {
                     letterToReset.remove();
                 } else {
-                    // Reset regular characters back to gray untyped status
                     letterToReset.className = 'letter';
                 }
             }
@@ -275,7 +351,6 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
-// CORE INPUT PROCESSING LOOP
 hiddenInput.addEventListener('input', (e) => {
     if (testOver) return;
     initAudio();
@@ -290,7 +365,6 @@ hiddenInput.addEventListener('input', (e) => {
     const letters = currentWord.querySelectorAll('.letter');
     const inputValue = hiddenInput.value;
 
-    // Skip tracking for backspaces in the input container to prevent dual-processing bugs
     if (e.inputType === 'deleteContentBackward') {
         return;
     }
@@ -324,7 +398,6 @@ hiddenInput.addEventListener('input', (e) => {
         }
         currentLetterIndex++;
     } else {
-        // Appends extra character letters if you mistype past the length of the word
         const extraSpan = document.createElement('span');
         extraSpan.className = 'letter extra';
         extraSpan.innerText = inputValue[inputValue.length - 1];
@@ -348,4 +421,7 @@ restartAction.addEventListener('click', (e) => {
     resetTest();
 });
 
+// Initial Setup
+updateNetworkStatus();
+renderHistory();
 generateWords();
