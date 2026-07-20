@@ -6,7 +6,7 @@ let timerInterval = null;
 let testActive = false;
 let testOver = false;
 let showHud = true;
-let currentMode = 'words'; // Options: 'words', 'numbers'
+let currentMode = 'words';
 
 let wordElements = [];
 let currentWordIndex = 0;
@@ -96,53 +96,39 @@ const restartAction = document.getElementById('restart-action');
 const historyList = document.getElementById('history-list');
 const syncStatus = document.getElementById('sync-status');
 const statusText = document.getElementById('status-text');
+const gameClickZone = document.getElementById('game-click-zone');
 
-// View Containers
-const testView = document.getElementById('test-view');
-const historyView = document.getElementById('history-view');
-const navTestBtn = document.getElementById('nav-test-btn');
-const navHistoryBtn = document.getElementById('nav-history-btn');
-
-/**
- * Screen / Tab View Switcher
- */
+// Tab Switching Logic
 function switchTab(tabName) {
+    const testView = document.getElementById('test-view');
+    const historyView = document.getElementById('history-view');
+    const navTestBtn = document.getElementById('nav-test-btn');
+    const navHistoryBtn = document.getElementById('nav-history-btn');
+
     if (tabName === 'test') {
-        if (testView) {
-            testView.classList.remove('hidden');
-            testView.classList.add('active');
-        }
-        if (historyView) {
-            historyView.classList.add('hidden');
-            historyView.classList.remove('active');
-        }
+        testView.style.display = 'block';
+        historyView.style.display = 'none';
 
-        if (navTestBtn) navTestBtn.classList.add('active');
-        if (navHistoryBtn) navHistoryBtn.classList.remove('active');
+        navTestBtn.classList.add('active');
+        navHistoryBtn.classList.remove('active');
 
-        if (hiddenInput && !testOver) {
+        if (!testOver && hiddenInput) {
             hiddenInput.focus();
         }
     } else if (tabName === 'history') {
-        if (historyView) {
-            historyView.classList.remove('hidden');
-            historyView.classList.add('active');
-        }
-        if (testView) {
-            testView.classList.add('hidden');
-            testView.classList.remove('active');
-        }
+        historyView.style.display = 'block';
+        testView.style.display = 'none';
 
-        if (navHistoryBtn) navHistoryBtn.classList.add('active');
-        if (navTestBtn) navTestBtn.classList.remove('active');
+        navHistoryBtn.classList.add('active');
+        navTestBtn.classList.remove('active');
 
         renderHistory();
     }
 }
 
-// Helper: Generator for Data Entry Numbers Mode
+// Generator for Data Entry Numbers Mode
 function generateRandomNumberString() {
-    const length = Math.floor(Math.random() * 5) + 1; // Generates 1 to 5 digit numbers
+    const length = Math.floor(Math.random() * 5) + 1;
     return Math.floor(Math.random() * Math.pow(10, length)).toString();
 }
 
@@ -243,8 +229,8 @@ function endTest() {
     testActive = false;
     testOver = true;
     
-    // Hide game zone and show score cards
-    document.getElementById('game-click-zone').style.display = 'none';
+    // Hide typing area and show only result summary
+    gameClickZone.style.display = 'none';
     resultScreen.style.display = 'block';
     caret.style.display = 'none';
 
@@ -252,7 +238,6 @@ function endTest() {
     document.getElementById('res-wpm').innerText = finalMetrics.wpm;
     document.getElementById('res-acc').innerText = `${finalMetrics.acc}%`;
 
-    // Save and sync score logic
     saveResult(finalMetrics.wpm, finalMetrics.acc);
 }
 
@@ -270,7 +255,8 @@ function resetTest() {
     typedCharactersCount = 0;
     errorCharactersCount = 0;
 
-    document.getElementById('game-click-zone').style.display = 'block';
+    // Reset view elements for typing screen
+    gameClickZone.style.display = 'block';
     resultScreen.style.display = 'none';
     caret.style.display = 'block';
     
@@ -312,7 +298,7 @@ function toggleHud() {
     if(testActive && showHud) liveHud.classList.add('visible');
 }
 
-// Local Storage & Online Sync Engine
+// Local Storage & Online Sync
 function saveResult(wpm, accuracy) {
     const newEntry = {
         id: Date.now(),
@@ -325,8 +311,6 @@ function saveResult(wpm, accuracy) {
     const history = JSON.parse(localStorage.getItem('novaTypeHistory') || '[]');
     history.unshift(newEntry);
     localStorage.setItem('novaTypeHistory', JSON.stringify(history));
-
-    renderHistory();
 }
 
 function renderHistory() {
@@ -339,7 +323,6 @@ function renderHistory() {
         return;
     }
 
-    // Displays all items without capping now that it's in its own scrollable screen
     history.forEach(item => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -366,9 +349,8 @@ function updateNetworkStatus() {
 window.addEventListener('online', updateNetworkStatus);
 window.addEventListener('offline', updateNetworkStatus);
 
-// Input & Event Listeners
+// Keydown Shortcuts
 window.addEventListener('keydown', (e) => {
-    // Quick Reset on Escape key anywhere during or after test
     if (e.key === 'Escape') {
         resetTest();
         return;
@@ -456,8 +438,9 @@ hiddenInput.addEventListener('input', (e) => {
     updateCaretPosition();
 });
 
+// Click Workspace Event Listener
 document.addEventListener('click', (e) => {
-    // Don't override click if user clicks on navigation buttons or history
+    // Ignore clicks on header/navigation or when on history screen
     if (e.target.closest('.top-nav') || e.target.closest('#history-view')) return;
 
     if (testOver) {
@@ -477,6 +460,6 @@ if (restartAction) {
 }
 
 // Initial Setup
+switchTab('test');
 updateNetworkStatus();
-renderHistory();
 generateWords();
