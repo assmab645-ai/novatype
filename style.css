@@ -96,7 +96,7 @@ body {
     font-weight: 700;
     cursor: pointer;
     transition: color 0.2s ease, opacity 0.2s ease;
-    padding: 0.2rem 0.6rem;
+    padding: 0.3rem 0.8rem;
     border-radius: 5px;
 }
 
@@ -109,17 +109,9 @@ body {
     background-color: var(--sub-alt-color);
 }
 
-/* --- Screen View Container Visibility --- */
+/* --- Screen View Containers --- */
 .view-screen {
     width: 100%;
-}
-
-.view-screen.hidden {
-    display: none !important;
-}
-
-.view-screen.active {
-    display: block;
 }
 
 .customizer-ribbon {
@@ -211,23 +203,23 @@ body {
     height: 48px;
 }
 
-/* HIGH-FOOTPRINT TYPOGRAPHY WITH LAYERED CONTRAST OPACITY */
+/* Typography with Layered Contrast */
 .letter {
     position: relative;
     font-weight: 700; 
-    opacity: 0.35; /* LIGHTER UNTYPED LETTER SHADING */
+    opacity: 0.35;
     transition: color 0.08s ease, opacity 0.08s ease;
 }
 
 .letter.correct {
     color: var(--text-color);
-    opacity: 1; /* Pops to full opacity bright text when correct */
+    opacity: 1;
     text-shadow: 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
 .letter.incorrect {
     color: var(--error-color);
-    opacity: 1; /* Bold full presence on errors */
+    opacity: 1;
     text-shadow: 0 0 8px rgba(239, 35, 60, 0.5);
 }
 
@@ -237,7 +229,7 @@ body {
     filter: brightness(0.7);
 }
 
-/* Smooth Gliding Bold Neon Caret */
+/* Caret */
 #caret {
     position: absolute;
     width: 3.5px; 
@@ -293,7 +285,7 @@ body {
     font-weight: bold;
 }
 
-/* --- Typing History & Connection Status Panel --- */
+/* --- Typing History Screen --- */
 .history-section {
     background-color: var(--sub-alt-color);
     padding: 1.5rem;
