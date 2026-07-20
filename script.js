@@ -93,12 +93,11 @@ const timerDisplay = document.getElementById('timer-display');
 const liveHud = document.getElementById('live-hud');
 const resultScreen = document.getElementById('result-screen');
 const restartAction = document.getElementById('restart-action');
-const historyList = document.getElementById('history-list');
 const syncStatus = document.getElementById('sync-status');
 const statusText = document.getElementById('status-text');
 const gameClickZone = document.getElementById('game-click-zone');
 
-// Tab Switching Logic
+// Tab Switching Logic (Direct Display Controls)
 function switchTab(tabName) {
     const testView = document.getElementById('test-view');
     const historyView = document.getElementById('history-view');
@@ -106,22 +105,23 @@ function switchTab(tabName) {
     const navHistoryBtn = document.getElementById('nav-history-btn');
 
     if (tabName === 'test') {
-        testView.style.display = 'block';
-        historyView.style.display = 'none';
+        if (testView) testView.style.display = 'block';
+        if (historyView) historyView.style.display = 'none';
 
-        navTestBtn.classList.add('active');
-        navHistoryBtn.classList.remove('active');
+        if (navTestBtn) navTestBtn.classList.add('active');
+        if (navHistoryBtn) navHistoryBtn.classList.remove('active');
 
         if (!testOver && hiddenInput) {
             hiddenInput.focus();
         }
     } else if (tabName === 'history') {
-        historyView.style.display = 'block';
-        testView.style.display = 'none';
+        if (historyView) historyView.style.display = 'block';
+        if (testView) testView.style.display = 'none';
 
-        navHistoryBtn.classList.add('active');
-        navTestBtn.classList.remove('active');
+        if (navHistoryBtn) navHistoryBtn.classList.add('active');
+        if (navTestBtn) navTestBtn.classList.remove('active');
 
+        // Always render updated history table when opening tab
         renderHistory();
     }
 }
@@ -229,10 +229,10 @@ function endTest() {
     testActive = false;
     testOver = true;
     
-    // Hide typing area and show only result summary
-    gameClickZone.style.display = 'none';
-    resultScreen.style.display = 'block';
-    caret.style.display = 'none';
+    // Hide typing field, display result cards
+    if (gameClickZone) gameClickZone.style.display = 'none';
+    if (resultScreen) resultScreen.style.display = 'block';
+    if (caret) caret.style.display = 'none';
 
     const finalMetrics = calculateMetrics();
     document.getElementById('res-wpm').innerText = finalMetrics.wpm;
@@ -255,10 +255,10 @@ function resetTest() {
     typedCharactersCount = 0;
     errorCharactersCount = 0;
 
-    // Reset view elements for typing screen
-    gameClickZone.style.display = 'block';
-    resultScreen.style.display = 'none';
-    caret.style.display = 'block';
+    // Reset typing screen elements
+    if (gameClickZone) gameClickZone.style.display = 'block';
+    if (resultScreen) resultScreen.style.display = 'none';
+    if (caret) caret.style.display = 'block';
     
     if (hiddenInput) hiddenInput.value = '';
     generateWords();
@@ -314,12 +314,14 @@ function saveResult(wpm, accuracy) {
 }
 
 function renderHistory() {
+    const historyList = document.getElementById('history-list');
     if (!historyList) return;
+
     const history = JSON.parse(localStorage.getItem('novaTypeHistory') || '[]');
     historyList.innerHTML = '';
 
     if (history.length === 0) {
-        historyList.innerHTML = `<tr><td colspan="4" style="text-align:center; opacity:0.5;">No history recorded yet</td></tr>`;
+        historyList.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 2rem; opacity:0.5;">No history recorded yet</td></tr>`;
         return;
     }
 
@@ -440,7 +442,6 @@ hiddenInput.addEventListener('input', (e) => {
 
 // Click Workspace Event Listener
 document.addEventListener('click', (e) => {
-    // Ignore clicks on header/navigation or when on history screen
     if (e.target.closest('.top-nav') || e.target.closest('#history-view')) return;
 
     if (testOver) {
