@@ -97,7 +97,7 @@ const syncStatus = document.getElementById('sync-status');
 const statusText = document.getElementById('status-text');
 const gameClickZone = document.getElementById('game-click-zone');
 
-// Tab Switching Logic (Direct Display Controls)
+// Tab Switching Controller
 function switchTab(tabName) {
     const testView = document.getElementById('test-view');
     const historyView = document.getElementById('history-view');
@@ -121,7 +121,6 @@ function switchTab(tabName) {
         if (navHistoryBtn) navHistoryBtn.classList.add('active');
         if (navTestBtn) navTestBtn.classList.remove('active');
 
-        // Always render updated history table when opening tab
         renderHistory();
     }
 }
@@ -229,7 +228,6 @@ function endTest() {
     testActive = false;
     testOver = true;
     
-    // Hide typing field, display result cards
     if (gameClickZone) gameClickZone.style.display = 'none';
     if (resultScreen) resultScreen.style.display = 'block';
     if (caret) caret.style.display = 'none';
@@ -255,7 +253,6 @@ function resetTest() {
     typedCharactersCount = 0;
     errorCharactersCount = 0;
 
-    // Reset typing screen elements
     if (gameClickZone) gameClickZone.style.display = 'block';
     if (resultScreen) resultScreen.style.display = 'none';
     if (caret) caret.style.display = 'block';
@@ -320,6 +317,40 @@ function renderHistory() {
     const history = JSON.parse(localStorage.getItem('novaTypeHistory') || '[]');
     historyList.innerHTML = '';
 
+    // Separate stats & calculate lifetime averages
+    let wordsCount = 0, wordsWpmSum = 0, wordsAccSum = 0;
+    let numbersCount = 0, numbersWpmSum = 0, numbersAccSum = 0;
+
+    history.forEach(item => {
+        if (item.mode === 'numbers') {
+            numbersCount++;
+            numbersWpmSum += Number(item.wpm) || 0;
+            numbersAccSum += Number(item.accuracy) || 0;
+        } else {
+            wordsCount++;
+            wordsWpmSum += Number(item.wpm) || 0;
+            wordsAccSum += Number(item.accuracy) || 0;
+        }
+    });
+
+    const avgWordsWpm = wordsCount > 0 ? Math.round(wordsWpmSum / wordsCount) : 0;
+    const avgWordsAcc = wordsCount > 0 ? Math.round(wordsAccSum / wordsCount) : 0;
+
+    const avgNumbersWpm = numbersCount > 0 ? Math.round(numbersWpmSum / numbersCount) : 0;
+    const avgNumbersAcc = numbersCount > 0 ? Math.round(numbersAccSum / numbersCount) : 0;
+
+    // Render Lifetime Averages Cards
+    const wordsWpmElem = document.getElementById('avg-words-wpm');
+    const wordsAccElem = document.getElementById('avg-words-acc');
+    const numbersWpmElem = document.getElementById('avg-numbers-wpm');
+    const numbersAccElem = document.getElementById('avg-numbers-acc');
+
+    if (wordsWpmElem) wordsWpmElem.innerText = avgWordsWpm;
+    if (wordsAccElem) wordsAccElem.innerText = `${avgWordsAcc}%`;
+    if (numbersWpmElem) numbersWpmElem.innerText = avgNumbersWpm;
+    if (numbersAccElem) numbersAccElem.innerText = `${avgNumbersAcc}%`;
+
+    // Render Table Rows
     if (history.length === 0) {
         historyList.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 2rem; opacity:0.5;">No history recorded yet</td></tr>`;
         return;
@@ -351,7 +382,7 @@ function updateNetworkStatus() {
 window.addEventListener('online', updateNetworkStatus);
 window.addEventListener('offline', updateNetworkStatus);
 
-// Keydown Shortcuts
+// Input & Event Listeners
 window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         resetTest();
@@ -440,7 +471,6 @@ hiddenInput.addEventListener('input', (e) => {
     updateCaretPosition();
 });
 
-// Click Workspace Event Listener
 document.addEventListener('click', (e) => {
     if (e.target.closest('.top-nav') || e.target.closest('#history-view')) return;
 
