@@ -15,7 +15,7 @@
 <body class="theme-novatype">
 
     <div class="wrapper">
-        <!-- Top Navigation Bar -->
+        <!-- Navigation Header Bar -->
         <nav class="top-nav">
             <div class="nav-brand">nova type</div>
             <div class="nav-links">
@@ -25,7 +25,7 @@
         </nav>
 
         <!-- Main Test Workspace View -->
-        <div id="test-view" class="view-screen active">
+        <div id="test-view" class="view-screen">
             <div class="customizer-ribbon">
                 <div class="option-group" id="mode-opts">
                     <span>mode:</span>
@@ -92,7 +92,7 @@
         </div>
 
         <!-- Dedicated History Screen View -->
-        <div id="history-view" class="view-screen hidden">
+        <div id="history-view" class="view-screen" style="display: none;">
             <div class="history-section">
                 <div class="history-header">
                     <h3>typing history</h3>
@@ -101,6 +101,25 @@
                         <span id="status-text">online</span>
                     </div>
                 </div>
+
+                <!-- Lifetime Averages Summary Section -->
+                <div class="history-summary" id="history-summary">
+                    <div class="summary-card">
+                        <div class="card-title">words mode avg</div>
+                        <div class="card-stats">
+                            <div><span class="stat-num" id="avg-words-wpm">0</span> <span class="stat-lbl">wpm</span></div>
+                            <div><span class="stat-num" id="avg-words-acc">0%</span> <span class="stat-lbl">acc</span></div>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="card-title">numbers mode avg</div>
+                        <div class="card-stats">
+                            <div><span class="stat-num" id="avg-numbers-wpm">0</span> <span class="stat-lbl">wpm</span></div>
+                            <div><span class="stat-num" id="avg-numbers-acc">0%</span> <span class="stat-lbl">acc</span></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="history-table-wrapper">
                     <table class="history-table">
                         <thead>
@@ -112,7 +131,7 @@
                             </tr>
                         </thead>
                         <tbody id="history-list">
-                            <!-- History rows dynamically populated here -->
+                            <!-- History rows rendered dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -120,6 +139,7 @@
         </div>
     </div>
 
+    <!-- Core App Imports -->
     <script src="words.js"></script>
     <script src="script.js"></script>
 </body>
