@@ -65,6 +65,63 @@ body {
     margin: auto;
 }
 
+/* --- Navigation Header Controls --- */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 0.5rem 0;
+}
+
+.nav-brand {
+    font-weight: 700;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-btn {
+    background: transparent;
+    border: none;
+    color: #5c5d6b;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s ease, opacity 0.2s ease;
+    padding: 0.2rem 0.6rem;
+    border-radius: 5px;
+}
+
+.nav-btn:hover {
+    color: var(--text-color);
+}
+
+.nav-btn.active {
+    color: var(--main-color);
+    background-color: var(--sub-alt-color);
+}
+
+/* --- Screen View Container Visibility --- */
+.view-screen {
+    width: 100%;
+}
+
+.view-screen.hidden {
+    display: none !important;
+}
+
+.view-screen.active {
+    display: block;
+}
+
 .customizer-ribbon {
     display: flex;
     justify-content: space-between;
@@ -238,7 +295,6 @@ body {
 
 /* --- Typing History & Connection Status Panel --- */
 .history-section {
-    margin-top: 3rem;
     background-color: var(--sub-alt-color);
     padding: 1.5rem;
     border-radius: 10px;
