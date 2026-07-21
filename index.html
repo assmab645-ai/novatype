@@ -60,6 +60,7 @@
                 <div id="timer-display" class="live-timer">15</div>
                 <div id="live-hud" class="live-metrics-hud">
                     <div>wpm: <span id="live-wpm">0</span></div>
+                    <div>raw: <span id="live-raw-wpm">0</span></div>
                     <div>acc: <span id="live-acc">100%</span></div>
                 </div>
             </div>
@@ -75,8 +76,12 @@
             <div id="result-screen" class="result-screen">
                 <div class="stats-display">
                     <div class="stat-group">
-                        <div class="label">wpm</div>
+                        <div class="label">net wpm</div>
                         <div class="value" id="res-wpm">0</div>
+                    </div>
+                    <div class="stat-group">
+                        <div class="label">raw wpm</div>
+                        <div class="value" id="res-raw-wpm">0</div>
                     </div>
                     <div class="stat-group">
                         <div class="label">accuracy</div>
@@ -107,14 +112,14 @@
                     <div class="summary-card">
                         <div class="card-title">words mode avg</div>
                         <div class="card-stats">
-                            <div><span class="stat-num" id="avg-words-wpm">0</span> <span class="stat-lbl">wpm</span></div>
+                            <div><span class="stat-num" id="avg-words-wpm">0</span> <span class="stat-lbl">net wpm</span></div>
                             <div><span class="stat-num" id="avg-words-acc">0%</span> <span class="stat-lbl">acc</span></div>
                         </div>
                     </div>
                     <div class="summary-card">
                         <div class="card-title">numbers mode avg</div>
                         <div class="card-stats">
-                            <div><span class="stat-num" id="avg-numbers-wpm">0</span> <span class="stat-lbl">wpm</span></div>
+                            <div><span class="stat-num" id="avg-numbers-wpm">0</span> <span class="stat-lbl">net wpm</span></div>
                             <div><span class="stat-num" id="avg-numbers-acc">0%</span> <span class="stat-lbl">acc</span></div>
                         </div>
                     </div>
@@ -125,7 +130,8 @@
                         <thead>
                             <tr>
                                 <th>mode</th>
-                                <th>wpm</th>
+                                <th>net wpm</th>
+                                <th>raw wpm</th>
                                 <th>accuracy</th>
                                 <th>date</th>
                             </tr>
