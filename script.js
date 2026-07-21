@@ -196,28 +196,52 @@ function updateCaretPosition() {
     caret.style.left = `${targetLeft}px`;
 }
 
+// UPDATED: Calculates Net WPM, Gross (Raw) WPM, and Accuracy with 0% clamp
 function calculateMetrics() {
     const timeElapsed = (testTime - timeLeft) / 60;
-    if (timeElapsed <= 0) return { wpm: 0, acc: 100 };
-    const wpm = Math.round((typedCharactersCount / 5) / timeElapsed);
-    const acc = typedCharactersCount > 0 
-        ? Math.round(((typedCharactersCount - errorCharactersCount) / typedCharactersCount) * 100) 
-        : 100;
-    return { wpm: Math.max(0, wpm), acc: Math.max(0, acc) };
+    if (timeElapsed <= 0 || typedCharactersCount === 0) {
+        return { netWpm: 0, rawWpm: 0, acc: 100 };
+    }
+
+    // Gross WPM (Raw physical typing speed)
+    const rawWpm = Math.round((typedCharactersCount / 5) / timeElapsed);
+
+    // Accuracy Calculation
+    const correctChars = typedCharactersCount - errorCharactersCount;
+    const acc = correctChars > 0 
+        ? Math.round((correctChars / typedCharactersCount) * 100) 
+        : 0;
+
+    // Net WPM Calculation (Clamped to 0 if accuracy is 0%)
+    let netWpm = 0;
+    if (acc > 0) {
+        netWpm = Math.round(rawWpm * (acc / 100));
+    }
+
+    return {
+        netWpm: Math.max(0, netWpm),
+        rawWpm: Math.max(0, rawWpm),
+        acc: Math.max(0, acc)
+    };
 }
 
 function startTest() {
     testActive = true;
     timerDisplay.classList.add('visible');
-    if(showHud) liveHud.classList.add('visible');
+    if (showHud) liveHud.classList.add('visible');
     
     timerInterval = setInterval(() => {
         timeLeft--;
         timerDisplay.innerText = timeLeft;
         
         const metrics = calculateMetrics();
-        document.getElementById('live-wpm').innerText = metrics.wpm;
-        document.getElementById('live-acc').innerText = `${metrics.acc}%`;
+        const liveWpmElem = document.getElementById('live-wpm');
+        const liveRawWpmElem = document.getElementById('live-raw-wpm');
+        const liveAccElem = document.getElementById('live-acc');
+
+        if (liveWpmElem) liveWpmElem.innerText = metrics.netWpm;
+        if (liveRawWpmElem) liveRawWpmElem.innerText = metrics.rawWpm;
+        if (liveAccElem) liveAccElem.innerText = `${metrics.acc}%`;
 
         if (timeLeft <= 0) endTest();
     }, 1000);
@@ -233,10 +257,15 @@ function endTest() {
     if (caret) caret.style.display = 'none';
 
     const finalMetrics = calculateMetrics();
-    document.getElementById('res-wpm').innerText = finalMetrics.wpm;
-    document.getElementById('res-acc').innerText = `${finalMetrics.acc}%`;
+    const resWpmElem = document.getElementById('res-wpm');
+    const resRawWpmElem = document.getElementById('res-raw-wpm');
+    const resAccElem = document.getElementById('res-acc');
 
-    saveResult(finalMetrics.wpm, finalMetrics.acc);
+    if (resWpmElem) resWpmElem.innerText = finalMetrics.netWpm;
+    if (resRawWpmElem) resRawWpmElem.innerText = finalMetrics.rawWpm;
+    if (resAccElem) resAccElem.innerText = `${finalMetrics.acc}%`;
+
+    saveResult(finalMetrics.netWpm, finalMetrics.rawWpm, finalMetrics.acc);
 }
 
 function resetTest() {
@@ -291,16 +320,17 @@ function toggleHud() {
     showHud = !showHud;
     document.getElementById('hud-toggle').classList.toggle('active', showHud);
     document.getElementById('hud-toggle').innerText = showHud ? 'visible' : 'hidden';
-    if(testActive && !showHud) liveHud.classList.remove('visible');
-    if(testActive && showHud) liveHud.classList.add('visible');
+    if (testActive && !showHud) liveHud.classList.remove('visible');
+    if (testActive && showHud) liveHud.classList.add('visible');
 }
 
 // Local Storage & Online Sync
-function saveResult(wpm, accuracy) {
+function saveResult(netWpm, rawWpm, accuracy) {
     const newEntry = {
         id: Date.now(),
         mode: currentMode,
-        wpm: wpm,
+        wpm: netWpm,
+        rawWpm: rawWpm,
         accuracy: accuracy,
         date: new Date().toLocaleDateString()
     };
@@ -352,7 +382,7 @@ function renderHistory() {
 
     // Render Table Rows
     if (history.length === 0) {
-        historyList.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 2rem; opacity:0.5;">No history recorded yet</td></tr>`;
+        historyList.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; opacity:0.5;">No history recorded yet</td></tr>`;
         return;
     }
 
@@ -361,6 +391,7 @@ function renderHistory() {
         tr.innerHTML = `
             <td>${item.mode}</td>
             <td>${item.wpm}</td>
+            <td>${item.rawWpm || item.wpm}</td>
             <td>${item.accuracy}%</td>
             <td>${item.date}</td>
         `;
